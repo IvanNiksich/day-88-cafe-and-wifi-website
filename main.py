@@ -83,6 +83,7 @@ def choice_random():
     return jsonify(selected_cafe.as_dict())
 
 
+# HTTP GET - Read All Records
 @app.route('/all_cafes_data', methods=['GET'])
 def all_cafes_data():
     with app.app_context():
@@ -95,6 +96,7 @@ def all_cafes_data():
         return jsonify(result)
 
 
+# HTTP GET - Search by location
 @app.route('/search', methods=['GET'])
 def search():
     loc = request.args.get("loc")
@@ -108,6 +110,7 @@ def search():
         return jsonify(result)
 
 
+# HTTP POST - Create Record
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     name = request.form.get("name")
@@ -139,6 +142,7 @@ def add():
         return jsonify(response={'Success': "Successfully added  the new cafe."})
 
 
+# HTTP PUT/PATCH - Update Record
 @app.route('/update-price/<int:cafe_id>', methods=['PATCH'])
 def update_price(cafe_id):
     new_price = request.args.get("new_price")
@@ -153,6 +157,7 @@ def update_price(cafe_id):
         return jsonify(response={'Success': "Successfully updated the price."})
 
 
+# HTTP DELETE - Delete Record
 @app.route('/report-closed/<cafe_id>', methods=['DELETE'])
 def report_closed(cafe_id):
     api_key = request.args.get("api-key")
@@ -168,15 +173,6 @@ def report_closed(cafe_id):
             return jsonify(response={'Success': "Successfully deleted the cafe."})
 
         return jsonify(error={'Forbidden': "Sorry that's not allowed. Make sure you have the correct api_key."}), 402
-
-
-# HTTP GET - Read Record
-
-# HTTP POST - Create Record
-
-# HTTP PUT/PATCH - Update Record
-
-# HTTP DELETE - Delete Record
 
 
 if __name__ == '__main__':
