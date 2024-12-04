@@ -57,10 +57,9 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    my_cafe = choice_random()
-    cafe = my_cafe.json
-    print(cafe['name'])
-    return render_template("index.html", cafe=cafe)
+    my_cafes = all_cafes_data()
+    cafes = my_cafes.json
+    return render_template("index.html", cafes=cafes)
 
 
 # Route to get a random cafe
