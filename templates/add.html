@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% from "bootstrap5/form.html" import render_form %}
+
+{% block title %}Cafe & Wifi API{% endblock %}
+
+{% block content %}
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Add a new cafe:</h2>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-8"> <!-- Two-thirds width -->
+                <div class="card p-4 shadow">
+                    {{ render_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

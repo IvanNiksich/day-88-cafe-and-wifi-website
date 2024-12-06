@@ -1,8 +1,13 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Boolean
 import random
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, SelectField
+from wtforms.validators import DataRequired, URL
+from flask_bootstrap import Bootstrap5
+
 
 '''
 Install the required packages first: 
@@ -20,6 +25,9 @@ This will install the packages from requirements.txt for this project.
 API_KEY = "TopSecretAPIKey"
 
 app = Flask(__name__)
+app.secret_key = API_KEY
+
+bootstrap = Bootstrap5(app)
 
 
 # CREATE DB
@@ -49,6 +57,58 @@ class Cafe(db.Model):
 
     def as_dict(self):
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
+
+class CafeForm(FlaskForm):
+    name = StringField('Cafe name', validators=[DataRequired()])
+    location = StringField("Cafe's neighborhood", validators=[DataRequired()])
+    coffee_price = StringField("Coffee's price?", validators=[DataRequired()])
+    has_wifi = SelectField(
+        "Is there Wifi for clients?",
+        choices=[
+            ('1', 'Yes'),
+            ('0', 'No'),
+        ],
+        validators=[DataRequired()]
+    )
+    has_sockets = SelectField(
+        "Are there sockets available for clients?",
+        choices=[
+            ('1', 'Yes'),
+            ('0', 'No'),
+        ],
+        validators=[DataRequired()]
+    )
+    can_take_calls = SelectField(
+        "Is it a good place to take calls?",
+        choices=[
+            ('1', 'Yes'),
+            ('0', 'No'),
+        ],
+        validators=[DataRequired()]
+    )
+    seats = SelectField(
+        "Number of seats",
+        choices=[
+            ('0-10', '0-10'),
+            ('10-20', '10-20'),
+            ('20-30', '20-30'),
+            ('30-40', '30-40'),
+            ('50+', '50+'),
+        ],
+        validators=[DataRequired()]
+    )
+    has_toilet = SelectField(
+        "Does it have toilets available?",
+        choices=[
+            ('1', 'Yes'),
+            ('0', 'No'),
+        ],
+        validators=[DataRequired()]
+    )
+    map_url = StringField("Map location's url", validators=[DataRequired(), URL()])
+    img_url = StringField("Cafe's image url", validators=[DataRequired(), URL()])
+    submit = SubmitField(label="Add cafe")
 
 
 with app.app_context():
@@ -115,33 +175,27 @@ def search():
 # HTTP POST - Create Record
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    name = request.form.get("name")
-    map_url = request.form.get("map_url")
-    img_url = request.form.get("img_url")
-    location = request.form.get("location")
-    seats = request.form.get("seats")
-    has_toilet = bool(request.form.get("has_toilet"))
-    has_wifi = bool(request.form.get("has_wifi"))
-    has_sockets = bool(request.form.get("has_sockets"))
-    can_take_calls = bool(request.form.get("can_take_calls"))
-    coffee_price = request.form.get("coffee_price")
-    print(name)
-    print(map_url)
-    with app.app_context():
-        new_cafe = Cafe(name=name,
-                        map_url=map_url,
-                        img_url=img_url,
-                        location=location,
-                        seats=seats,
-                        has_toilet=has_toilet,
-                        has_wifi=has_wifi,
-                        has_sockets=has_sockets,
-                        can_take_calls=can_take_calls,
-                        coffee_price=coffee_price
-                        )
-        db.session.add(new_cafe)
-        db.session.commit()
-        return jsonify(response={'Success': "Successfully added  the new cafe."})
+    form = CafeForm()
+    if form.validate_on_submit():
+        with app.app_context():
+            new_cafe = CafeForm(name=form.name.data,
+                                map_url=form.map_url.data,
+                                img_url=form.img_url.data,
+                                location=form.location.data,
+                                seats=form.seats.data,
+                                has_toilet=bool(form.has_toilet.data),
+                                has_wifi=bool(form.has_wifi.data),
+                                has_sockets=bool(form.has_sockets.data),
+                                can_take_calls=bool(form.can_take_calls.data),
+                                coffee_price=form.coffee_price.data,
+                                )
+            print(new_cafe)
+            # db.session.add(new_cafe)
+            # db.session.commit()
+            # return jsonify(response={'Success': "Successfully added  the new cafe."})
+            return redirect(url_for("home"))
+
+    return render_template("add.html", form=form)
 
 
 # HTTP PUT/PATCH - Update Record

@@ -1,0 +1,21 @@
+<style>
+    .btn-primary {
+        background-color: #EEEEEE; /* Change background color */
+        border-color: #4CAF50;    /* Change border color */
+        color: #3F72AF;             /* Text color */
+        padding: 12px 20px;       /* Add padding */
+        font-size: 1.1rem;        /* Adjust font size */
+        border-radius: 8px;       /* Rounded corners */
+        transition: all 0.3s ease; /* Add hover transition */
+    }
+
+    .btn-primary:hover {
+        background-color: #45a049; /* Darker shade on hover */
+        border-color: #45a049;
+    }
+
+    .btn-primary:active {
+        background-color: #3e8e41; /* Even darker when active */
+        border-color: #3e8e41;
+    }
+</style>
