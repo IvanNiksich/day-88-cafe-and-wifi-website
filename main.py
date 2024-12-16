@@ -66,24 +66,24 @@ class CafeForm(FlaskForm):
     has_wifi = SelectField(
         "Is there Wifi for clients?",
         choices=[
-            ('1', 'Yes'),
-            ('0', 'No'),
+            (1, 'Yes'),
+            (0, 'No'),
         ],
         validators=[DataRequired()]
     )
     has_sockets = SelectField(
         "Are there sockets available for clients?",
         choices=[
-            ('1', 'Yes'),
-            ('0', 'No'),
+            (1, 'Yes'),
+            (0, 'No'),
         ],
         validators=[DataRequired()]
     )
     can_take_calls = SelectField(
         "Is it a good place to take calls?",
         choices=[
-            ('1', 'Yes'),
-            ('0', 'No'),
+            (1, 'Yes'),
+            (0, 'No'),
         ],
         validators=[DataRequired()]
     )
@@ -101,8 +101,8 @@ class CafeForm(FlaskForm):
     has_toilet = SelectField(
         "Does it have toilets available?",
         choices=[
-            ('1', 'Yes'),
-            ('0', 'No'),
+            (1, 'Yes'),
+            (0, 'No'),
         ],
         validators=[DataRequired()]
     )
@@ -178,20 +178,48 @@ def add():
     form = CafeForm()
     if form.validate_on_submit():
         with app.app_context():
-            new_cafe = CafeForm(name=form.name.data,
-                                map_url=form.map_url.data,
-                                img_url=form.img_url.data,
-                                location=form.location.data,
-                                seats=form.seats.data,
-                                has_toilet=bool(form.has_toilet.data),
-                                has_wifi=bool(form.has_wifi.data),
-                                has_sockets=bool(form.has_sockets.data),
-                                can_take_calls=bool(form.can_take_calls.data),
-                                coffee_price=form.coffee_price.data,
-                                )
-            print(new_cafe)
-            # db.session.add(new_cafe)
-            # db.session.commit()
+            # Get the info from the WTF form into new_cafe_data
+            new_cafe_data = CafeForm(name=form.name.data,
+                                     map_url=form.map_url.data,
+                                     img_url=form.img_url.data,
+                                     location=form.location.data,
+                                     seats=form.seats.data,
+                                     has_toilet=bool(int(form.has_toilet.data)),
+                                     has_wifi=bool(int(form.has_wifi.data)),
+                                     has_sockets=bool(int(form.has_sockets.data)),
+                                     can_take_calls=bool(int(form.can_take_calls.data)),
+                                     coffee_price=form.coffee_price.data,
+                                     )
+            # print(f"has_toilet: {form.has_toilet.data}")
+            # print(type(form.has_toilet.data))
+            # print(f"has_wifi: {form.has_wifi.data}")
+            # print(type(form.has_wifi.data))
+            # print(f"has_sockets: {form.has_sockets.data}")
+            # print(type(form.has_sockets.data))
+            # print(f"can_take_calls: {form.can_take_calls.data}")
+            # print(type(form.can_take_calls.data))
+
+            # Create new_cafe and set it with new_cafe_data info
+            new_cafe = Cafe(
+                name=new_cafe_data.name.data,
+                map_url=new_cafe_data.map_url.data,
+                img_url=new_cafe_data.img_url.data,
+                location=new_cafe_data.location.data,
+                seats=new_cafe_data.seats.data,
+                has_toilet=bool(new_cafe_data.has_toilet.data == "1"),
+                has_wifi=bool(new_cafe_data.has_wifi.data == "1"),
+                has_sockets=bool(new_cafe_data.has_sockets.data == "1"),
+                can_take_calls=bool(new_cafe_data.can_take_calls.data == "1"),
+                coffee_price=new_cafe_data.coffee_price.data,
+                )
+
+            # print(new_cafe.has_toilet)
+            # print(new_cafe.has_wifi)
+            # print(new_cafe.has_sockets)
+            # print(new_cafe.can_take_calls)
+
+            db.session.add(new_cafe)
+            db.session.commit()
             # return jsonify(response={'Success': "Successfully added  the new cafe."})
             return redirect(url_for("home"))
 
