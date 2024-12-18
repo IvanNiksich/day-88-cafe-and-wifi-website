@@ -7,6 +7,10 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, URL
 from flask_bootstrap import Bootstrap5
+from dotenv import load_dotenv
+import os
+import requests
+import re
 
 
 '''
@@ -28,6 +32,12 @@ app = Flask(__name__)
 app.secret_key = API_KEY
 
 bootstrap = Bootstrap5(app)
+
+# Get the API key from the environment variable
+GMAPS_API_KEY = os.getenv('GOOGLE_API_KEY')
+
+if API_KEY is None:
+    raise ValueError("No API key found. Make sure the 'GOOGLE_API_KEY' environment variable is set.")
 
 
 # CREATE DB
@@ -113,6 +123,32 @@ class CafeForm(FlaskForm):
 
 with app.app_context():
     db.create_all()
+
+
+def get_coordinates_from_maps_url(short_url):
+    # The short URL needs to be resolved to a full URL (get the place name)
+    # Assuming the short URL redirects to a Google Maps URL
+    # You can extract the location by making a GET request to the short URL
+
+    resolved_url = requests.get(short_url).url
+    print(resolved_url)
+
+    # Extract the coordinates from the resolved URL
+    # Regex pattern to match coordinates after '@' symbol
+    pattern = r'@(-?\d+\.\d+),(-?\d+\.\d+)'
+
+    # Search for the pattern in the provided URL
+    match = re.search(pattern, resolved_url)
+
+    if match:
+        # Extract latitude and longitude from the match groups
+        lat = float(match.group(1))
+        lng = float(match.group(2))
+        print(f"lat:{lat}", f"lng:{lng}")
+        return {'lat': float(lat), 'lng': float(lng)}
+
+    else:
+        return None
 
 
 @app.route("/")
@@ -257,6 +293,15 @@ def report_closed(cafe_id):
             return jsonify(response={'Success': "Successfully deleted the cafe."})
 
         return jsonify(error={'Forbidden': "Sorry that's not allowed. Make sure you have the correct api_key."}), 402
+
+
+@app.route('/location')
+def location():
+    # Example coordinates for testing
+    # default_location = {"lat": 37.7749, "lng": -122.4194}  # San Francisco, CA
+    short_url = "https://goo.gl/maps/HC4e9FJL48kLRH8W9"
+    default_location = get_coordinates_from_maps_url(short_url)
+    return render_template('location.html', default_location=default_location, GMAPS_API_KEY=GMAPS_API_KEY)
 
 
 if __name__ == '__main__':
