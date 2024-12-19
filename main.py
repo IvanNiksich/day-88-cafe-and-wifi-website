@@ -144,6 +144,8 @@ def get_coordinates_from_maps_url(short_url):
         # Extract latitude and longitude from the match groups
         lat = float(match.group(1))
         lng = float(match.group(2))
+        print(match.group(1))
+        print(match.group(2))
         print(f"lat:{lat}", f"lng:{lng}")
         return {'lat': float(lat), 'lng': float(lng)}
 
@@ -295,13 +297,23 @@ def report_closed(cafe_id):
         return jsonify(error={'Forbidden': "Sorry that's not allowed. Make sure you have the correct api_key."}), 402
 
 
-@app.route('/location')
-def location():
+@app.route('/location/<cafe_id>')
+def location(cafe_id):
+    with app.app_context():
+        cafes_search = Cafe.query.filter_by(id=cafe_id).all()
+        if not cafes_search:
+            return jsonify(error={'Not Found': "Sorry we don't have a cafe at that location"}), 404
+        result = []
+        for cafe in cafes_search:
+            result.append(cafe.as_dict())
+        cafe = result[0]
+
     # Example coordinates for testing
-    # default_location = {"lat": 37.7749, "lng": -122.4194}  # San Francisco, CA
-    short_url = "https://goo.gl/maps/HC4e9FJL48kLRH8W9"
+    default_location = {"lat": 37.7749, "lng": -122.4194}  # San Francisco, CA
+    short_url = cafe['map_url']
+    print(short_url)
     default_location = get_coordinates_from_maps_url(short_url)
-    return render_template('location.html', default_location=default_location, GMAPS_API_KEY=GMAPS_API_KEY)
+    return render_template('location.html', default_location=default_location, GMAPS_API_KEY=GMAPS_API_KEY, cafe_id=cafe_id)
 
 
 if __name__ == '__main__':

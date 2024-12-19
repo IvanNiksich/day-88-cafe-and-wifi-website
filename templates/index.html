@@ -19,7 +19,9 @@
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
-                            <h4 class="card-title">{{ cafe['name'] }}</h4>
+                            <h4 class="card-title">
+                                <a href="{{ url_for('location', cafe_id=cafe['id']) }}" target="_blank">{{ cafe['name'] }}</a>
+                            </h4>
                             <h5 class="card-title">in {{ cafe['location'] }}</h5>
 
                             <div class="container">
